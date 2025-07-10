@@ -197,7 +197,10 @@ A resposta completa de processamento contém as seguintes seções:
         "tipo7": 0,
         "trailer": 1,
         "assinatura": 0
-      }
+      },
+      "crcErrors": 0,
+      "algoritmoDetectado": "MODBUS",
+      "multiplosAlgoritmosCompativeis": false
     }
   }
 }
@@ -249,6 +252,9 @@ Array de objetos com as seguintes propriedades:
 - `validacaoDetalhada.erros`: Lista completa de todos os erros de validação (integridade do arquivo, contagem de registros, etc.)
 - `validacaoDetalhada.avisos`: Lista de avisos (não impeditivos)
 - `validacaoDetalhada.contagemRegistros`: Contagem de registros por tipo
+- `validacaoDetalhada.crcErrors`: Número de registros com erros na validação CRC-16
+- `validacaoDetalhada.algoritmoDetectado`: Algoritmo CRC-16 detectado no arquivo (ex: "MODBUS", "KERMIT", "CCITT-FFFF", "XMODEM", "CCITT-Default")
+- `validacaoDetalhada.multiplosAlgoritmosCompativeis`: Indica se múltiplos algoritmos CRC-16 são compatíveis com o arquivo
 
 ## Códigos de Erro HTTP
 
