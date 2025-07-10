@@ -9,7 +9,7 @@ Esta API permite validar e extrair informações de arquivos AFD (Arquivo-Fonte 
 Todas as requisições à API devem incluir um token de autenticação no cabeçalho HTTP:
 
 ```
-Authorization: Bearer seu-token-super-secreto-aqui
+Authorization: Bearer TOKEN_HERE
 ```
 
 ## Endpoints Disponíveis
