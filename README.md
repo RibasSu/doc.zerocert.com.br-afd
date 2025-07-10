@@ -288,18 +288,18 @@ Array de objetos com as seguintes propriedades:
 curl -X POST \
   -H "Authorization: Bearer TOKEN_HERE" \
   -F "afdFile=@caminho/para/seu/arquivo.afd" \
-  https://api.zerotls.com.br/api/v1/afd/process-sync
+  https://api.zerocert.com.br/api/v1/afd/process-sync
 
 # Processamento assíncrono
 curl -X POST \
   -H "Authorization: Bearer TOKEN_HERE" \
   -F "afdFile=@caminho/para/seu/arquivo.afd" \
-  https://api.zerotls.com.br/api/v1/afd/process
+  https://api.zerocert.com.br/api/v1/afd/process
 
 # Verificação de status
 curl -X GET \
   -H "Authorization: Bearer TOKEN_HERE" \
-  https://api.zerotls.com.br/api/v1/afd/status/550e8400-e29b-41d4-a716-446655440000
+  https://api.zerocert.com.br/api/v1/afd/status/550e8400-e29b-41d4-a716-446655440000
 ```
 
 ## Limitações
