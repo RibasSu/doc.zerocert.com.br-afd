@@ -117,18 +117,19 @@ Content-Type: multipart/form-data
 {
   "status": "complete",
   "result": {
-    "isValid": true,
-    "errors": [],
-    "warnings": [],
-    "recordCounts": {
-      "type1": 1,
-      "type2": 1,
-      "type3": 10,
-      "type4": 1,
-      "type5": 14,
-      "type6": 10,
-      "type7": 0,
-      "type9": 1
+    "valido": true,
+    "erros": [],
+    "avisos": [],
+    "contagemRegistros": {
+      "tipo1": 1,
+      "tipo2": 1,
+      "tipo3": 10,
+      "tipo4": 1,
+      "tipo5": 14,
+      "tipo6": 10,
+      "tipo7": 0,
+      "trailer": 1,
+      "assinatura": 1
     }
   }
 }
@@ -137,6 +138,70 @@ Content-Type: multipart/form-data
 ## Estrutura da Resposta
 
 A resposta completa de processamento contém as seguintes seções:
+
+### Exemplo de Resposta Completa
+
+```json
+{
+  "status": "complete",
+  "result": {
+    "algoritmoValidacao": "CRC-16 + SHA-256",
+    "layout": "Portaria 671",
+    "empresa": {
+      "razaoSocial": "EMPRESA EXEMPLO LTDA",
+      "cnpjCpf": "12345678901234",
+      "tipoIdentificador": "CNPJ",
+      "cei": null,
+      "cno": null,
+      "periodoInicial": "2023-01-01",
+      "periodoFinal": "2023-01-31"
+    },
+    "funcionarios": [
+      {
+        "id": "12345678901",
+        "nome": "FUNCIONARIO EXEMPLO",
+        "tipo": "CPF",
+        "status": "Ativo",
+        "operacao": "Inclusão"
+      }
+    ],
+    "validacao": {
+      "integridadeArquivo": false,
+      "validadePeriodo": true,
+      "contagemRegistros": false,
+      "erros": []
+    },
+    "estatisticas": {
+      "totalFuncionarios": 1,
+      "funcionariosAtivos": 1,
+      "funcionariosExcluidos": 0,
+      "totalMarcacoes": 10,
+      "periodoCobertura": {
+        "inicio": "2023-01-01",
+        "fim": "2023-01-31"
+      }
+    },
+    "validacaoDetalhada": {
+      "valido": false,
+      "erros": [
+        "Contador type6 inconsistente: esperado 10, encontrado 9"
+      ],
+      "avisos": [],
+      "contagemRegistros": {
+        "tipo1": 1,
+        "tipo2": 1,
+        "tipo3": 10,
+        "tipo4": 1,
+        "tipo5": 1,
+        "tipo6": 9,
+        "tipo7": 0,
+        "trailer": 1,
+        "assinatura": 0
+      }
+    }
+  }
+}
+```
 
 ### Informações Gerais
 
@@ -168,7 +233,7 @@ Array de objetos com as seguintes propriedades:
 - `validacao.integridadeArquivo`: Indica se o arquivo passou na validação de integridade (CRC-16/SHA-256)
 - `validacao.validadePeriodo`: Indica se o período inicial é anterior ao período final
 - `validacao.contagemRegistros`: Indica se a contagem de registros confere com o trailer
-- `validacao.erros`: Lista de mensagens de erro (vazia se não houver erros)
+- `validacao.erros`: Lista de mensagens de erro relacionadas apenas à validação de período (vazia se não houver erros de período)
 
 ### Estatísticas
 
@@ -180,10 +245,10 @@ Array de objetos com as seguintes propriedades:
 
 ### Validação Detalhada
 
-- `validacaoDetalhada.isValid`: Indica se o arquivo é válido segundo todas as regras
-- `validacaoDetalhada.errors`: Lista de erros detalhados
-- `validacaoDetalhada.warnings`: Lista de avisos (não impeditivos)
-- `validacaoDetalhada.recordCounts`: Contagem de registros por tipo
+- `validacaoDetalhada.valido`: Indica se o arquivo é válido segundo todas as regras
+- `validacaoDetalhada.erros`: Lista completa de todos os erros de validação (integridade do arquivo, contagem de registros, etc.)
+- `validacaoDetalhada.avisos`: Lista de avisos (não impeditivos)
+- `validacaoDetalhada.contagemRegistros`: Contagem de registros por tipo
 
 ## Códigos de Erro HTTP
 
@@ -196,12 +261,17 @@ Array de objetos com as seguintes propriedades:
 
 ## Erros Comuns
 
+### Erros HTTP
+
 - "Nenhum arquivo foi enviado. Use a chave 'afdFile'." - Verifique se o arquivo está sendo enviado com o nome correto
 - "Conteúdo do arquivo inválido ou não fornecido." - Verifique se o arquivo está em formato texto válido
 - "Arquivo AFD vazio ou inválido (mínimo de cabeçalho e trailer)." - O arquivo deve conter pelo menos um registro de cabeçalho e um trailer
+
+### Erros de Validação (encontrados em `validacaoDetalhada.erros`)
+
 - "Período inicial deve ser anterior ao período final" - Verifique as datas no cabeçalho do arquivo
 - "X registros com falha na verificação CRC-16" - Verifique a integridade do arquivo
-- "Contagem de registros tipo X não confere" - Verifique se o trailer contém a contagem correta de registros
+- "Contador typeX inconsistente: esperado Y, encontrado Z" - Verifique se o trailer contém a contagem correta de registros
 
 ## Exemplos de Uso
 
