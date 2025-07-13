@@ -46,8 +46,13 @@ GET /api/v1/afd
 ```json
 {
   "message": "API unificada para análise e validação de arquivos AFD",
-  "version": "1.0.0",
-  "supportedFormats": ["Portaria 1510", "Portaria 671"]
+  "version": "1.3.0",
+  "supportedFormats": ["Portaria 1510", "Portaria 671"],
+  "features": [
+    "Validação de estrutura e integridade",
+    "Detecção automática de layout",
+    "Suporte a arquivos P7S para verificação de assinatura digital (REP P 671)"
+  ]
 }
 ```
 
@@ -59,6 +64,7 @@ POST /api/v1/afd/process
 Content-Type: multipart/form-data
 
 [arquivo binário com nome "afdFile"]
+[arquivo binário com nome "p7sFile"] (opcional, para verificação de assinatura digital)
 ```
 
 **Resposta Inicial (202 Accepted):**
@@ -104,6 +110,7 @@ POST /api/v1/afd/process-sync
 Content-Type: multipart/form-data
 
 [arquivo binário com nome "afdFile"]
+[arquivo binário com nome "p7sFile"] (opcional, para verificação de assinatura digital)
 ```
 
 **Resposta:**
@@ -129,6 +136,7 @@ POST /api/v1/afd/validate
 Content-Type: multipart/form-data
 
 [arquivo binário com nome "afdFile"]
+[arquivo binário com nome "p7sFile"] (opcional, para verificação de assinatura digital)
 ```
 
 **Resposta:**
@@ -143,11 +151,11 @@ Content-Type: multipart/form-data
     "erros": [],
     "avisos": [],
     "detalhesRegistros": {
-      "tipo1": 1,
-      "tipo2": 1,
-      "tipo3": 10,
-      "tipo4": 1,
-      "tipo5": 14,
+    "tipo1": 1,
+    "tipo2": 1,
+    "tipo3": 10,
+    "tipo4": 1,
+    "tipo5": 14,
       "tipo6": 10,
       "tipo7": 0,
       "trailer": 1,
@@ -222,7 +230,16 @@ A resposta completa de processamento contém as seguintes seções:
       },
       "crcErrors": 0,
       "algoritmoDetectado": "MODBUS",
-      "multiplosAlgoritmosCompativeis": false
+      "multiplosAlgoritmosCompativeis": false,
+       "assinaturaDigital": {
+         "presente": true,
+         "verificada": true,
+         "detalhes": {
+           "mensagem": "Arquivo P7S encontrado e linha de assinatura digital presente no AFD",
+           "tipoArquivo": "REP P 671",
+           "tamanhoP7S": 2048
+         }
+       }
     }
   }
 }
@@ -770,13 +787,39 @@ A API ZeroCert suporta os seguintes formatos de arquivo AFD:
   - Tipo 9: Trailer
 - **Validação**: CRC-16 + SHA-256
 - **Formato de Data**: ISO 8601 (YYYY-MM-DDThh:mm:ss)
+- **Assinatura Digital**: Pode conter ou não assinatura digital com certificado e-CNPJ
+  - Quando assinado digitalmente, é necessário enviar também o arquivo .p7s correspondente
+  - A API verifica a presença da linha indicativa de assinatura digital ("ASSINATURA_DIGITAL_EM_ARQUIVO_P7S") no AFD
+  - A verificação completa da assinatura digital é realizada quando o arquivo .p7s é fornecido junto com o AFD
 
 ### Detecção Automática
 
 A API detecta automaticamente o formato do arquivo com base em:
 - Presença de datas no formato ISO 8601 (indicativo de Portaria 671)
 - Estrutura e tamanho dos registros
-- Algoritmos de validação presentes
+
+### Verificação de Assinatura Digital
+
+A API suporta a verificação de assinatura digital para arquivos AFD REP P 671:
+
+1. **Envio de Arquivos**:
+   - Envie o arquivo AFD com o campo `afdFile`
+   - Envie o arquivo P7S correspondente com o campo `p7sFile`
+
+2. **Processo de Verificação**:
+   - A API verifica se o arquivo AFD é do tipo REP P 671
+   - Verifica a presença da linha indicativa de assinatura digital no AFD ("ASSINATURA_DIGITAL_EM_ARQUIVO_P7S")
+   - Verifica a existência do arquivo P7S correspondente
+   - **Nota**: A verificação criptográfica completa da assinatura será implementada em uma versão futura
+
+3. **Resultado da Verificação**:
+   - O resultado é retornado no campo `assinaturaDigital` da resposta
+   - Inclui informações sobre a presença e validade da assinatura
+   - Fornece detalhes adicionais sobre a verificação
+### Algoritmos de Validação
+
+- A API detecta e utiliza automaticamente o algoritmo de validação apropriado
+- Suporta múltiplos algoritmos de CRC-16 para compatibilidade com diferentes fabricantes
 
 ## Suporte e Contato
 
